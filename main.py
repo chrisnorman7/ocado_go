@@ -1,14 +1,31 @@
 """Ocado Go server."""
 
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from json import loads
 from urllib.parse import quote
 from bs4 import BeautifulSoup
 from flask import Flask, jsonify, render_template, request
+from gevent.pywsgi import WSGIServer
 from requests import Session
 
 http = Session()
 base_url = 'https://www.ocado.com/search?entry='
 app = Flask(__name__)
+
+parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
+
+parser.add_argument(
+    '-i', '--interface', default='0.0.0.0', help='The interface to bind to'
+)
+
+parser.add_argument(
+    '-p', '--port', type=int, default=6223, help='The port to listen on'
+)
+
+parser.add_argument(
+    '-d', '--debug', action='store_true', default=False,
+    help='Enable debugging mode'
+)
 
 
 def error(msg):
@@ -79,4 +96,9 @@ def ocado_search():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=6223)
+    args = parser.parse_args()
+    http_server = WSGIServer((args.interface, args.port), app)
+    try:
+        http_server.serve_forever()
+    except KeyboardInterrupt:
+        pass
