@@ -53,6 +53,9 @@ def search(string):
         price = price['unit']
         per = price['per']
         price = price['price']
+        if per == 'per 10ml':
+            per = 'per litre'
+            price *= 100
         if per == 'per 100ml':
             per = 'per litre'
             price *= 10
