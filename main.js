@@ -14,7 +14,6 @@ const searchButton = document.getElementById("searchButton")
 const output = document.getElementById("output")
 
 window.onload = () => {
-    frame.sandbox = "allow-same-origin allow-scripts"
     frame.hidden = true
     frame.onload = loadSearchResults
 }
