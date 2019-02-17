@@ -3,8 +3,10 @@ function loadSearchResults(e) {
     let data = JSON.parse(response)
     clearElement(output)
     if (data.error !== undefined) {
+        searchResults.innerText = "Error"
         output.innerText = `Error: ${data.error}`
     } else {
+        searchResults.innerText = searchString
         for (let per in data) {
             let h3 = document.createElement("h3")
             h3.innerText = per
@@ -36,7 +38,9 @@ function clearElement(e) {
     }
 }
 
+let searchString = null
 const pound = "&pound;"
+const searchResults = document.getElementById("searchResults")
 const string = document.getElementById("string")
 const searchForm = document.getElementById("searchForm")
 const searchButton = document.getElementById("searchButton")
@@ -44,8 +48,9 @@ const output = document.getElementById("output")
 
 searchForm.onsubmit = (e) => {
     e.preventDefault()
-    let value = string.value
-    if (!value) {
+    searchString = string.value
+    if (!searchString) {
+        searchString = null
         return alert("You must search for something.")
     }
     searchButton.disabled = true
@@ -60,6 +65,6 @@ searchForm.onsubmit = (e) => {
     }
     xhr.open("POST", "/ocado/")
     let fd = new FormData()
-    fd.append("string", string.value)
+    fd.append("string", searchString)
     xhr.send(fd)
 }
