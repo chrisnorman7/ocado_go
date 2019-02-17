@@ -55,7 +55,7 @@ def search(string):
             dict(
                 sku=sku, name=product['name'],
                 price=current, per=price, url=base_url + sku,
-                weight=product['catchWeight']
+                weight=product.get('catchWeight', '')
             )
         )
     if not products:

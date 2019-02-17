@@ -22,6 +22,7 @@ function loadSearchResults(e) {
                 output.appendChild(p)
             }
         }
+        string.value = ""
     }
     searchButton.disabled = false
     searchButton.value = "Search"
@@ -52,6 +53,11 @@ searchForm.onsubmit = (e) => {
     output.innerText = "Loading results, please wait."
     let xhr = new XMLHttpRequest()
     xhr.onload = loadSearchResults
+    xhr.onerror = () => {
+        searchButton.disabled = false
+        searchButton.value = "Search"
+        output.innerText = "Failed to load search results."
+    }
     xhr.open("POST", "/ocado/")
     let fd = new FormData()
     fd.append("string", string.value)
