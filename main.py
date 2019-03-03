@@ -51,7 +51,7 @@ def search(string):
         if 'unit' not in price:
             price['unit'] = dict(per='each', price=current)
         price = price['unit']
-        per = price['per']
+        per = price.get('per', 'each')
         price = price['price']
         if per == 'per 10ml':
             per = 'per litre'
