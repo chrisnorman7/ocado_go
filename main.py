@@ -1,5 +1,6 @@
 """Ocado Go server."""
 
+import logging
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from json import loads
 from urllib.parse import quote
@@ -37,60 +38,64 @@ def error(msg):
 def search(string):
     """Perform a search and return a dictionary of results. If an error occurs,
     a dictionary with a single key "error" will be returned."""
-    results_url = search_url + string
-    res = http.get(results_url)
-    if not res.ok:
-        return error('Error: %r.' % res)
-    s = BeautifulSoup(res.content, 'html.parser')
-    data = s.body.find('script').text.strip().split(' = ')[1].strip(';')
-    data = loads(data)
-    products_data = data['products']['productsBySku']
-    products = {}
-    for product in products_data.values():
-        price = product['price']
-        try:
-            current = price['current']
-        except KeyError:
-            current = price['unit']['price']
-        if 'unit' not in price:
-            price['unit'] = dict(per='each', price=current)
-        price = price['unit']
-        per = price.get('per', 'each')
-        price = price['price']
-        if per == 'per 10ml':
-            per = 'per litre'
-            price *= 100
-        if per == 'per 100ml':
-            per = 'per litre'
-            price *= 10
-        elif per == 'per 100g':
-            per = 'per kg'
-            price *= 10
-        elif per == 'per 1g':
-            per = 'per kg'
-            price *= 1000
-        elif per == 'per 10g':
-            per = 'per kg'
-            price *= 100
-        if per not in products:
-            products[per] = []
-        sku = product['sku']
-        name = product['name']
-        url = s.find(
-            lambda tag: tag.name == 'a' and name in tag.text
-        ).get('href')
-        url = ocado_url + url
-        products[per].append(
-            dict(
-                sku=sku, name=name, price=current, per=price, url=url,
-                weight=product.get('catchWeight', '')
+    try:
+        results_url = search_url + quote(string)
+        res = http.get(results_url)
+        if not res.ok:
+            return error('Error: %r.' % res)
+        s = BeautifulSoup(res.content, 'html.parser')
+        data = s.body.find('script').text.strip().split(' = ')[1].strip(';')
+        data = loads(data)
+        products_data = data['products']['productsBySku']
+        products = {}
+        for product in products_data.values():
+            price = product['price']
+            try:
+                current = price['current']
+            except KeyError:
+                current = price['unit']['price']
+            if 'unit' not in price:
+                price['unit'] = dict(per='each', price=current)
+            price = price['unit']
+            per = price.get('per', 'each')
+            price = price['price']
+            if per == 'per 10ml':
+                per = 'per litre'
+                price *= 100
+            if per == 'per 100ml':
+                per = 'per litre'
+                price *= 10
+            elif per == 'per 100g':
+                per = 'per kg'
+                price *= 10
+            elif per == 'per 1g':
+                per = 'per kg'
+                price *= 1000
+            elif per == 'per 10g':
+                per = 'per kg'
+                price *= 100
+            if per not in products:
+                products[per] = []
+            sku = product['sku']
+            name = product['name']
+            url = s.find(
+                lambda tag: tag.name == 'a' and name in tag.text
+            ).get('href')
+            url = ocado_url + url
+            products[per].append(
+                dict(
+                    sku=sku, name=name, price=current, per=price, url=url,
+                    weight=product.get('catchWeight', '')
+                )
             )
-        )
-    if not products:
-        return error('No products to show.')
-    for per, data in products.copy().items():
-        products[per] = sorted(data, key=lambda thing: thing['per'])
-    return dict(search_url=results_url, products=products)
+        if not products:
+            return error('No products to show.')
+        for per, data in products.copy().items():
+            products[per] = sorted(data, key=lambda thing: thing['per'])
+        return dict(search_url=results_url, products=products)
+    except Exception:
+        logging.exception('Search string %r caused an error.', string)
+        return error('Your search caused an error which has been reported.')
 
 
 @app.route('/')
@@ -101,12 +106,12 @@ def index():
 @app.route('/ocado/', methods=['GET', 'POST'])
 def ocado_search():
     string = request.form['string']
-    string = quote(string)
     results = search(string)
     return jsonify(results)
 
 
 if __name__ == '__main__':
+    logging.basicConfig(filename='errors.log', level='INFO')
     args = parser.parse_args()
     http_server = WSGIServer((args.interface, args.port), app)
     try:
