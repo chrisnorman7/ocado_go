@@ -9,7 +9,8 @@ from gevent.pywsgi import WSGIServer
 from requests import Session
 
 http = Session()
-base_url = 'https://www.ocado.com/search?entry='
+ocado_url = 'https://www.ocado.com'
+search_url = ocado_url + '/search?entry='
 app = Flask(__name__)
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
@@ -36,7 +37,7 @@ def error(msg):
 def search(string):
     """Perform a search and return a dictionary of results. If an error occurs,
     a dictionary with a single key "error" will be returned."""
-    url = base_url + string
+    url = search_url + string
     res = http.get(url)
     if not res.ok:
         return error('Error: %r.' % res)
@@ -71,10 +72,14 @@ def search(string):
         if per not in products:
             products[per] = []
         sku = product['sku']
+        name = product['name']
+        url = s.find(
+            lambda tag: tag.name == 'a' and name in tag.text
+        ).get('href')
+        url = ocado_url + url
         products[per].append(
             dict(
-                sku=sku, name=product['name'],
-                price=current, per=price, url=base_url + sku,
+                sku=sku, name=name, price=current, per=price, url=url,
                 weight=product.get('catchWeight', '')
             )
         )
