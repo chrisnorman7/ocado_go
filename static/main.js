@@ -6,12 +6,17 @@ function loadSearchResults(e) {
         searchResults.innerText = "Error"
         output.innerText = `Error: ${data.error}`
     } else {
+        let a = document.createElement("a")
+        a.href = data.search_url
+        a.target = "_new"
+        a.innerText = `Search Ocado for ${searchString}`
+        output.appendChild(a)
         searchResults.innerText = searchString
-        for (let per in data) {
+        for (let per in data.products) {
             let h3 = document.createElement("h3")
             h3.innerText = per
             output.appendChild(h3)
-            for (let product of data[per]) {
+            for (let product of data.products[per]) {
                 let h4 = document.createElement("h4")
                 let a = document.createElement("a")
                 a.innerText = `${product.name} ${product.weight}`

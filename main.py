@@ -37,8 +37,8 @@ def error(msg):
 def search(string):
     """Perform a search and return a dictionary of results. If an error occurs,
     a dictionary with a single key "error" will be returned."""
-    url = search_url + string
-    res = http.get(url)
+    results_url = search_url + string
+    res = http.get(results_url)
     if not res.ok:
         return error('Error: %r.' % res)
     s = BeautifulSoup(res.content, 'html.parser')
@@ -87,7 +87,7 @@ def search(string):
         return error('No products to show.')
     for per, data in products.copy().items():
         products[per] = sorted(data, key=lambda thing: thing['per'])
-    return products
+    return dict(search_url=results_url, products=products)
 
 
 @app.route('/')
