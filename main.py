@@ -48,7 +48,10 @@ def search(string):
     products = {}
     for product in products_data.values():
         price = product['price']
-        current = price['current']
+        try:
+            current = price['current']
+        except KeyError:
+            current = price['unit']['price']
         if 'unit' not in price:
             price['unit'] = dict(per='each', price=current)
         price = price['unit']
