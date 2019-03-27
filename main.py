@@ -5,7 +5,10 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from json import loads
 from urllib.parse import quote
 from bs4 import BeautifulSoup
+
 from flask import Flask, jsonify, render_template, request
+from gevent import get_hub
+from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
 from requests import Session
 
@@ -116,7 +119,8 @@ def ocado_search():
 if __name__ == '__main__':
     logging.basicConfig(filename='errors.log', level='INFO')
     args = parser.parse_args()
-    http_server = WSGIServer((args.interface, args.port), app)
+    get_hub().NOT_ERROR += (KeyboardInterrupt,)
+    http_server = WSGIServer((args.interface, args.port), app, spawn=Pool())
     try:
         http_server.serve_forever()
     except KeyboardInterrupt:
