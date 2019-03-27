@@ -81,13 +81,14 @@ def search(string):
             img = s.find(
                 lambda tag: tag.name == 'img' and tag.get('alt') == name
             )
+            image_url = ocado_url + img.get('src')
             url = img.parent.parent.parent.parent
             url = url.get('href')
             url = ocado_url + url
             products[per].append(
                 dict(
                     sku=sku, name=name, price=current, per=price, url=url,
-                    weight=product.get('catchWeight', ''), image=img.get('src')
+                    weight=product.get('catchWeight', ''), image=image_url
                 )
             )
         if not products:
