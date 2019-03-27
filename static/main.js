@@ -27,6 +27,10 @@ function loadSearchResults(e) {
                 let p = document.createElement("p")
                 p.innerHTML = `${pound}${product.price.toFixed(2)} (${pound}${product.per.toFixed(2)} ${per})`
                 output.appendChild(p)
+                let i = document.createElement("img")
+                i.src = product.image
+                i.alt = "Product image"
+                output.appendChild(i)
             }
         }
         string.value = ""
