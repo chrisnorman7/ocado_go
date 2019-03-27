@@ -81,9 +81,22 @@ def search(string):
                 products[per] = []
             sku = product['sku']
             name = product['name']
-            img = s.find(
-                lambda tag: tag.name == 'img' and tag.get('alt') == name
-            )
+            weight = product.get('catchWeight', '')
+            images = s.find_all('img', {'alt': name})
+            if len(images) == 1:
+                img = images[0]
+            else:
+                for img in images:
+                    parent = img.parent.parent.parent
+                    span = parent.find(
+                        'span', {'class': 'fop-catch-weight'}
+                    )
+                    if span is not None and span.text == weight:
+                        break
+                else:
+                    for image in images:
+                        print(image.parent.parent.parent)
+                    print(len(images))
             image_url = ocado_url + img.get('src')
             url = img.parent.parent.parent.parent
             url = url.get('href')
@@ -91,7 +104,7 @@ def search(string):
             products[per].append(
                 dict(
                     sku=sku, name=name, price=current, per=price, url=url,
-                    weight=product.get('catchWeight', ''), image=image_url
+                    weight=weight, image=image_url
                 )
             )
         if not products:
