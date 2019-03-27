@@ -78,10 +78,20 @@ def search(string):
                 products[per] = []
             sku = product['sku']
             name = product['name']
-            url = s.find(
-                lambda tag: tag.name == 'a' and name in tag.text
-            ).get('href')
-            url = ocado_url + url
+            urls = s.find_all(
+                lambda tag: tag.name == 'a' and tag.find(
+                    lambda tag: tag.name == 'img' and tag.get('alt') == name)
+            )
+            if len(urls) == 1:
+                url = urls[0].get('href')
+                url = ocado_url + url
+            else:
+                logging.warning(
+                    '%d URLS found for search term %s:', len(urls), string
+                )
+                for url in urls:
+                    logging.info(url)
+                url = search_url + sku
             products[per].append(
                 dict(
                     sku=sku, name=name, price=current, per=price, url=url,
