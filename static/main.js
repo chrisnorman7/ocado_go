@@ -1,3 +1,7 @@
+window.onload = () => {
+    string.focus()
+}
+
 function createA(href) {
     let a = document.createElement("a")
     a.href=href
