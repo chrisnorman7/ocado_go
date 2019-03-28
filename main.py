@@ -80,6 +80,7 @@ def search(string):
             if per not in products:
                 products[per] = []
             sku = product['sku']
+            app_url = search_url + sku
             name = product['name']
             weight = product.get('catchWeight', '')
             images = s.find_all('img', {'alt': name})
@@ -104,7 +105,7 @@ def search(string):
             products[per].append(
                 dict(
                     sku=sku, name=name, price=current, per=price, url=url,
-                    weight=weight, image=image_url
+                    weight=weight, image=image_url, app_url=app_url
                 )
             )
         if not products:

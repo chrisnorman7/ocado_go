@@ -1,3 +1,10 @@
+function createA(href) {
+    let a = document.createElement("a")
+    a.href=href
+    a.target = "_new"
+    return a
+}
+
 function loadSearchResults(e) {
     let response = e.target.response
     let data = JSON.parse(response)
@@ -6,9 +13,7 @@ function loadSearchResults(e) {
         searchResults.innerText = "Error"
         output.innerText = `Error: ${data.error}`
     } else {
-        let a = document.createElement("a")
-        a.href = data.search_url
-        a.target = "_new"
+        let a = createA(data.search_url)
         a.innerText = `Search Ocado for ${searchString}`
         output.appendChild(a)
         searchResults.innerText = searchString
@@ -18,19 +23,26 @@ function loadSearchResults(e) {
             output.appendChild(h3)
             for (let product of data.products[per]) {
                 let h4 = document.createElement("h4")
-                let a = document.createElement("a")
+                let a = createA(product.url)
                 a.innerText = `${product.name} ${product.weight}`
-                a.target = "_new"
-                a.href = product.url
                 h4.appendChild(a)
                 output.appendChild(h4)
                 let p = document.createElement("p")
                 p.innerHTML = `${pound}${product.price.toFixed(2)} (${pound}${product.per.toFixed(2)} ${per})`
                 output.appendChild(p)
+                p = document.createElement("p")
+                a = createA(product.app_url)
+                a.innerText = "Open in app"
+                p.appendChild(a)
+                output.appendChild(p)
+                p = document.createElement("p")
+                a = createA(product.image)
                 let i = document.createElement("img")
                 i.src = product.image
                 i.alt = "Product image"
-                output.appendChild(i)
+                a.appendChild(i)
+                p.appendChild(a)
+                output.appendChild(p)
             }
         }
         string.value = ""
