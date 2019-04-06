@@ -77,6 +77,8 @@ def search(string):
             elif per == 'per 10g':
                 per = 'per kg'
                 price *= 100
+            else:
+                price = current
             if per not in products:
                 products[per] = []
             sku = product['sku']
@@ -94,10 +96,6 @@ def search(string):
                     )
                     if span is not None and span.text == weight:
                         break
-                else:
-                    for image in images:
-                        print(image.parent.parent.parent)
-                    print(len(images))
             image_url = ocado_url + img.get('src')
             url = img.parent.parent.parent.parent
             url = url.get('href')
