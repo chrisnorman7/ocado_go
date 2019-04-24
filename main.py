@@ -65,7 +65,7 @@ def search(string):
             if per == 'per 10ml':
                 per = 'per litre'
                 price *= 100
-            if per == 'per 100ml':
+            elif per == 'per 100ml':
                 per = 'per litre'
                 price *= 10
             elif per == 'per 100g':
